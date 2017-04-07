@@ -82,7 +82,7 @@
         android:drawableLeft="@drawable/mobile"/>
 
     <EditText
-        android:id="@+id/location"
+        android:id="@+id/addrs"
         android:hint="Adddress"
         android:layout_width="260dp"
         android:layout_height="wrap_content"
@@ -112,19 +112,6 @@
         android:drawableLeft="@drawable/lock"/>
 
 
-
-    <EditText
-        android:id="@+id/confirmPassword"
-        android:hint="Confirm Password"
-        android:layout_width="260dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="@android:color/transparent"
-        android:drawablePadding="8dp"
-        android:layout_marginLeft="10dp"
-        android:padding="10dp"
-        android:textSize="16sp"
-        android:drawableLeft="@drawable/lock"/>
 
     <Button
         android:id="@+id/signUpBtn"

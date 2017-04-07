@@ -1,65 +1,112 @@
 package com.example.admin.manimate;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.admin.manimate.AsyncTasks.AsyncResponse;
+import com.example.admin.manimate.AsyncTasks.WebserviceCall;
+import com.example.admin.manimate.Helper.Utils;
+import com.example.admin.manimate.Model.SignUp;
+import com.google.gson.Gson;
 
-public class Registration extends AppCompatActivity implements AdapterView.OnItemSelectedListener    {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.example.admin.manimate.R.id.fullName;
+import static com.example.admin.manimate.R.layout.activity_registration;
+
+public class Registration extends AppCompatActivity   {
     Spinner spinner;
 
-
+    int selectedRole=1;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
+        setContentView(activity_registration);
+        final EditText ed1=(EditText)findViewById(fullName);
+        final EditText ed2=(EditText)findViewById(R.id.userEmailId);
+        final EditText ed3=(EditText)findViewById(R.id.mobileNumber);
+        final EditText ed4=(EditText)findViewById(R.id.addrs);
+        final EditText ed5=(EditText)findViewById(R.id.password);
+        Button button=(Button)findViewById(R.id.signUpBtn) ;
 
-        // Spinner element
-        Spinner spinner = (Spinner) findViewById(R.id.dipartmentSpi);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strname = ed1.getText().toString();
+                String strmailid = ed2.getText().toString();
+                String strmobile = ed3.getText().toString();
+                String stradrs = ed4.getText().toString();
+                String strpass = ed5.getText().toString();
+                if (strname.isEmpty()) {
+                    Toast.makeText(Registration.this, "UserName can't be empty", Toast.LENGTH_SHORT).show();
+                } else if (strmailid.isEmpty()) {
+                    Toast.makeText(Registration.this, "Emailid can't be empty", Toast.LENGTH_SHORT).show();
 
-        // Spinner click listener
-        spinner.setOnItemSelectedListener(this);
+                } else if (strmobile.isEmpty()) {
+                    Toast.makeText(Registration.this, "mobile can't be empty", Toast.LENGTH_SHORT).show();
 
-        // Spinner Drop down elements
-        List<String> categories = new ArrayList<>();
-        categories.add("Project Manager");
-        categories.add("HR Manager");
-        categories.add("Development Leader");
-        categories.add("Team Leader");
-        categories.add("Client");
+                } else if (stradrs.isEmpty()) {
+                    Toast.makeText(Registration.this, "Address can't be empty", Toast.LENGTH_SHORT).show();
 
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+                } else if (strpass.isEmpty()) {
+                    Toast.makeText(Registration.this, "password can't be empty", Toast.LENGTH_SHORT).show();
 
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                } else {
 
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
+
+                    String[] keys = new String[]{"mode", "userName", "emailId", "contactNumber", "address", "password"};
+                    String[] values = new String[]{"Registration", strname, strmailid, strmobile, stradrs, strpass};
+                    String jsonRequest = Utils.createJsonRequest(keys, values);
+
+                    String URL = "http://vnurture.in/logistic/webservice.php";
+
+                    new WebserviceCall(Registration.this, URL, jsonRequest, "Logging in", true, new AsyncResponse() {
+                        @Override
+                        public void onCallback(String response) {
+                            Log.d("myapp", response);
+                            SignUp model = new Gson().fromJson(response, SignUp.class);
+                            Toast.makeText(Registration.this, model.getMessage(), Toast.LENGTH_SHORT).show();
+                            if (model.getStatus() == 1) {
+                                Intent intent = new Intent(Registration.this, Home.class);
+
+                                startActivity(intent);
+                            }
+
+                        }
+                    }).execute();
+
+                }
+//
+            }
+//
+        });
     }
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // On selecting a spinner item
-        String item = parent.getItemAtPosition(position).toString();
 
-        // Showing selected spinner item
-        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
 
-    }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
 
-    }
+
+
+            public static boolean isValidEmail(CharSequence target) {
+                Pattern pattern;
+                Matcher matcher;
+                final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+                pattern = Pattern.compile(EMAIL_PATTERN);
+                matcher = pattern.matcher(target);
+                return matcher.matches();
+            }
+
 }
+
+
